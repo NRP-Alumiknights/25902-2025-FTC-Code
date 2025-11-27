@@ -1,53 +1,106 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
 /**
- * Generic subsystem template.
- * Copy → rename → modify for any mechanism.
+ * Flywheel launcher subsystem using encoder → RPM closed-loop.
+ * ONLY uses hardware in Robot.java (robot.launcher).
  */
 public class Launcher {
 
     private final Robot robot;
     private final Telemetry telemetry;
+    private final DcMotorEx flywheel;
 
-    // ===== Your hardware goes here =====
-    // Example:
-    // private DcMotor motor;
-    // private Servo servo;
-    // private CRServo crServo;
-    // private IMU imu;
+    // PIDF
+    private double kP = 0.0008;
+    private double kI = 0.0000;
+    private double kD = 0.0002;
+    private double kF = 0.0;
 
-    public Launcher(Robot robot, Telemetry telemetry, HardwareMap hardwareMap) {
+    private double targetRPM = 0;
+    private double rpmTolerance = 50;
+
+    private final ElapsedTime timer = new ElapsedTime();
+    private int lastPosition = 0;
+
+    public Launcher(Robot robot, Telemetry telemetry) {
         this.robot = robot;
         this.telemetry = telemetry;
 
-        // ===== Initialize hardware here =====
-        // motor = hardwareMap.get(DcMotor.class, "motorName");
-        // servo = hardwareMap.get(Servo.class, "servoName");
-        // imu   = hardwareMap.get(IMU.class, "imu");
+        this.flywheel = (DcMotorEx) robot.launcher;
 
-        // ===== Configure hardware =====
-        // motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        timer.reset();
     }
 
-    // ====================================================
-    // =============== HIGH-LEVEL API =======================
-    // ====================================================
+    // =============================
+    //         PUBLIC API
+    // =============================
 
-    /** Example of a high-level action */
-    public void runExample(double power) {
-        // motor.setPower(power);
+    public void setRPM(double rpm) {
+        targetRPM = rpm;
     }
 
-    /** Example: Stop all motion for this subsystem */
+    public void update() {
+        double currentRPM = getRPM();
+        double error = targetRPM - currentRPM;
+
+        double dt = timer.seconds();
+        timer.reset();
+
+        double derivative = (error) / dt;
+
+        double output = (kP * error) + (kD * derivative) + (kF * targetRPM);
+
+        // clamp
+        output = Math.max(0, Math.min(output, 1));
+        flywheel.setPower(output);
+
+        log(currentRPM, output);
+    }
+
     public void stop() {
-        // if (motor != null) motor.setPower(0);
-        // if (servo != null) servo.setPosition(servo.getPosition());
+        targetRPM = 0;
+        flywheel.setPower(0);
     }
 
+    public boolean readyToFire() {
+        return Math.abs(getRPM() - targetRPM) <= rpmTolerance;
     }
 
+    // =============================
+    //          RPM CALC
+    // =============================
+
+    private double getRPM() {
+        int pos = flywheel.getCurrentPosition();
+        double dt = timer.seconds();
+
+        int delta = pos - lastPosition;
+        lastPosition = pos;
+
+        double ticksPerRev = 28.0;
+
+        double revs = delta / ticksPerRev;
+        double rps = revs / dt;
+
+        return rps * 60.0;
+    }
+
+    // =============================
+    //        TELEMETRY
+    // =============================
+
+    private void log(double currentRPM, double out) {
+        telemetry.addData("Launcher Target", targetRPM);
+        telemetry.addData("Launcher RPM", currentRPM);
+        telemetry.addData("Launcher PowerOut", out);
+        telemetry.addData("Ready", readyToFire());
+    }
+}

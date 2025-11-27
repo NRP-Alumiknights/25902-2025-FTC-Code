@@ -5,12 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
+import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 
 @TeleOp(name = "TeleOp25", group = "ITD")
 public class TeleOp25 extends LinearOpMode {
 
     Robot robot;
     Drive drive;
+    Launcher launcher;
 
     @Override
     public void runOpMode() {
@@ -18,29 +20,50 @@ public class TeleOp25 extends LinearOpMode {
         // Initialize robot hardware
         robot = new Robot(hardwareMap);
         drive = new Drive(robot, telemetry);
+        launcher = new Launcher(robot, telemetry);
 
-        double drivefb = 0.0;
-        double strafe = 0.0;
-        double rotate = 0.0;
+
+        int rpm = 3000;
+        boolean lastUp = false;
+        boolean lastDown = false;
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-
-            // Drive using your mecanum method
+            // 1. Driving
             drive.setMecanum(
                     -gamepad1.left_stick_y,
-                     gamepad1.left_stick_x,
-                     gamepad1.right_stick_x,   // rotate (turn)
-                    1.0                       // scale
+                    gamepad1.left_stick_x,
+                    gamepad1.right_stick_x,
+                    1.0
             );
 
+            // 2. RPM adjustment with edge detection
+            boolean up = gamepad2.dpad_up;
+            boolean down = gamepad2.dpad_down;
 
-            // Turbo / Slow mode
+            if (up && !lastUp) {        // pressed this loop
+                rpm += 500;
+            }
+            if (down && !lastDown) {
+                rpm -= 500;
+            }
 
+            // store previous state
+            lastUp = up;
+            lastDown = down;
 
-            //drive.update();  // OPTIONAL if your drive system uses any tracking
+            // clamp
+            if (rpm < 0) rpm = 0;
+            if (rpm > 6000) rpm = 6000;
+
+            // 3. Apply RPM + maintain speed
+            launcher.setRPM(rpm);
+            launcher.update();   // << REQUIRED
+
+            telemetry.addData("RPM Target", rpm);
+            telemetry.addData("Ready", launcher.readyToFire());
             telemetry.update();
         }
     }
