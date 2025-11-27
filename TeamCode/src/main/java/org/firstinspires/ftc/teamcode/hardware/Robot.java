@@ -14,18 +14,21 @@ public class Robot {
 
     public HardwareMap hw;
 
-    public Robot(HardwareMap hardwareMap) {}
+    /** FIXED: Robot constructor now stores the hardware map AND initializes. */
+    public Robot(HardwareMap hardwareMap) {
+        init(hardwareMap);
+    }
 
+    /** Proper init for all motors */
     public void init(HardwareMap hardwareMap) {
         this.hw = hardwareMap;
 
-        // Motors — names must match your Hub configuration
+        // Motors (MAKE SURE names match your config!)
         rightFront = initMotor("RightFront", true);
         leftFront  = initMotor("LeftFront", false);
         rightBack  = initMotor("RightBack", true);
         leftBack   = initMotor("LeftBack", false);
 
-        // launcher motor (if used as flywheel)
         launcher = initMotor("Launcher", true);
 
         // CRServos
@@ -34,32 +37,30 @@ public class Robot {
         loader  = hw.crservo.get("Loader");
         loaderWheel = hw.crservo.get("LoaderWheel");
 
-        // IMU (name "imu")
+        // IMU
         imu = hw.get(IMU.class, "imu");
-        try {
-            imu.initialize(new IMU.Parameters( new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                    RevHubOrientationOnRobot.UsbFacingDirection.UP
-            )));
-        } catch (Exception e) {
-            // ignore if IMU not present or initialization fails during unit tests
-        }
+        imu.initialize(new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                        RevHubOrientationOnRobot.UsbFacingDirection.UP
+                )
+        ));
 
-        // Default to brake for safety
+        // Brake mode default
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    private DcMotor initMotor(String name, boolean forwardDirection) {
+    private DcMotor initMotor(String name, boolean forward) {
         DcMotor m = hw.get(DcMotor.class, name);
-        if (!forwardDirection) m.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (!forward) m.setDirection(DcMotorSimple.Direction.REVERSE);
         m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         return m;
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
         if (leftFront != null) leftFront.setZeroPowerBehavior(behavior);
-        if (leftBack  != null) leftBack.setZeroPowerBehavior(behavior);
         if (rightFront!= null) rightFront.setZeroPowerBehavior(behavior);
+        if (leftBack  != null) leftBack.setZeroPowerBehavior(behavior);
         if (rightBack != null) rightBack.setZeroPowerBehavior(behavior);
         if (launcher != null) launcher.setZeroPowerBehavior(behavior);
     }

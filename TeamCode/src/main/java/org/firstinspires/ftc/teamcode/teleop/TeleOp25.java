@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.drive.Drive;
+import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 @TeleOp(name = "TeleOp25", group = "ITD")
 public class TeleOp25 extends LinearOpMode {
@@ -27,14 +27,12 @@ public class TeleOp25 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            drivefb = -gamepad1.left_stick_y;
-            strafe = gamepad1.left_stick_x;
-            rotate = gamepad1.right_stick_x;
+
             // Drive using your mecanum method
             drive.setMecanum(
-                    drivefb,   // drive (forward/back)
-                    strafe,    // strafe (left/right)
-                    rotate,   // rotate (turn)
+                    -gamepad1.left_stick_y,
+                     gamepad1.left_stick_x,
+                     gamepad1.right_stick_x,   // rotate (turn)
                     1.0                       // scale
             );
 
