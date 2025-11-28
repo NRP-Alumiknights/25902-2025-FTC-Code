@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 public class Robot {
     public DcMotor rightFront, leftFront, rightBack, leftBack, launcher;
-    public CRServo intakeL, intakeR, loader, loaderWheel;
+    public CRServo intakeL, intakeR, loader, loader2, loader3, turret;
     public IMU imu;
 
     public HardwareMap hw;
@@ -35,7 +35,9 @@ public class Robot {
         intakeL = hw.crservo.get("IntakeL");
         intakeR = hw.crservo.get("IntakeR");
         loader  = hw.crservo.get("Loader");
-        loaderWheel = hw.crservo.get("LoaderWheel");
+        loader2 = hw.crservo.get("LoaderWheel");
+        loader3 = hw.crservo.get(("Loader3"));
+        turret = hw.crservo.get(("Turret"));
 
         // IMU
         imu = hw.get(IMU.class, "imu");

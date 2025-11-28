@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.teamcode.subsystems.Load;
 
 @TeleOp(name = "TeleOp25", group = "ITD")
 public class TeleOp25 extends LinearOpMode {
@@ -13,6 +14,7 @@ public class TeleOp25 extends LinearOpMode {
     Robot robot;
     Drive drive;
     Launcher launcher;
+    Load loader;
 
     @Override
     public void runOpMode() {
@@ -21,6 +23,7 @@ public class TeleOp25 extends LinearOpMode {
         robot = new Robot(hardwareMap);
         drive = new Drive(robot, telemetry);
         launcher = new Launcher(robot, telemetry);
+        loader = new Load(robot, telemetry);
 
 
         int rpm = 3000;
@@ -64,7 +67,33 @@ public class TeleOp25 extends LinearOpMode {
 
             telemetry.addData("RPM Target", rpm);
             telemetry.addData("Ready", launcher.readyToFire());
+
+            //4. Intake systems
+            if (gamepad2.left_trigger > 0.1)
+            {
+                loader.LoadBot(1);
+            }
+
+            //5. Load Systems
+            if (gamepad2.right_trigger > 0.1)
+            {
+                loader.LoadTurret(1);
+            }
+            if (gamepad2.right_trigger < 0.1 && gamepad2.left_trigger < 0.1 && !gamepad2.x)
+            {
+              loader.stopLoader();
+              loader.stopIntake();
+            }
+
+            //6. Flush system.
+            if (gamepad2.x)
+            {
+                loader.LoadBot(-1);
+                loader.LoadTurret(-1);
+            }
+
             telemetry.update();
+
         }
     }
 }
