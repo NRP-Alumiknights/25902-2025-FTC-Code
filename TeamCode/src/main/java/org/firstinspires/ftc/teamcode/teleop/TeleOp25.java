@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 import org.firstinspires.ftc.teamcode.subsystems.Load;
+import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 @TeleOp(name = "TeleOp25", group = "ITD")
 public class TeleOp25 extends LinearOpMode {
@@ -15,6 +16,7 @@ public class TeleOp25 extends LinearOpMode {
     Drive drive;
     Launcher launcher;
     Load loader;
+    Turret turret;
 
     @Override
     public void runOpMode() {
@@ -24,6 +26,7 @@ public class TeleOp25 extends LinearOpMode {
         drive = new Drive(robot, telemetry);
         launcher = new Launcher(robot, telemetry);
         loader = new Load(robot, telemetry);
+        turret = new Turret(robot, telemetry);
 
 
         int rpm = 3000;
@@ -91,7 +94,15 @@ public class TeleOp25 extends LinearOpMode {
                 loader.LoadBot(-1);
                 loader.LoadTurret(-1);
             }
-
+            // 7. Turret control
+            if (Math.abs(gamepad2.left_stick_x) > 0.1)
+            {
+               turret.rotateTurret(gamepad2.left_stick_x);
+            }
+            else
+            {
+                turret.stop();
+            }
             telemetry.update();
 
         }
