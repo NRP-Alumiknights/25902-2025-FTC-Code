@@ -35,9 +35,9 @@ public class Load {
         robot.intakeR.setPower(power);
     }
     public void LoadTurret(double power) {
-        robot.loader.setPower(power);
-        robot.loader2.setPower(power);
-        robot.loader3.setPower(power);
+        robot.loader.setPower(-power);
+        robot.loader2.setPower(-power);
+        robot.loader3.setPower(-power);
     }
 
     /** Stop everything related to this subsystem */
