@@ -31,7 +31,7 @@ public class Load {
         // robot.launcher.setPower(power);
 
         // Or a CRServo
-        robot.intakeL.setPower(power);
+        robot.intakeL.setPower(-power/2.0);
         robot.intakeR.setPower(power);
     }
     public void LoadTurret(double power) {
