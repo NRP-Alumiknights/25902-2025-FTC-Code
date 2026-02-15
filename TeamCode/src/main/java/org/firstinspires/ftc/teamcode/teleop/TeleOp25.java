@@ -38,73 +38,85 @@ public class TeleOp25 extends LinearOpMode {
         while (opModeIsActive()) {
 
             // 1. Driving
-            drive.setMecanum(
-                    -gamepad1.left_stick_y,
-                    gamepad1.left_stick_x,
-                    gamepad1.right_stick_x,
-                    1.0
-            );
+            if (gamepad1.right_stick_y != 0 || gamepad1.right_stick_x != 0 || gamepad1.left_stick_x != 0) {
+                double r = Math.hypot(gamepad1.right_stick_x, gamepad1.right_stick_y);
+                double robotAngle = Math.atan2(gamepad1.right_stick_y, gamepad1.right_stick_x) - Math.PI / 4;
+                double turn = gamepad1.left_stick_x;
+                double rightX = turn * turn * turn;
+                final double v1 = (-r * Math.cos(robotAngle) + rightX);
+                final double v2 = (-r * Math.sin(robotAngle) - rightX);
+                final double v3 = (-r * Math.sin(robotAngle) + rightX);
+                final double v4 = (-r * Math.cos(robotAngle) - rightX);
+                robot.leftBack.setPower(v1 * 1);
+                robot.rightBack.setPower(v2 * 1);
+                robot.leftFront.setPower(v3 * 1);
+                robot.rightFront.setPower(v4 * 1);
 
-            // 2. RPM adjustment with edge detection
-            boolean up = gamepad2.dpad_up;
-            boolean down = gamepad2.dpad_down;
+                telemetry.addData("LF", v3 * .25);
+                telemetry.addData("RF", v4 * .25);
+                telemetry.addData("LB", v1 * .25);
+                telemetry.addData("RB", v2 * .25);
+                telemetry.update();
+            } else {
+                robot.leftFront.setPower(0);
+                robot.leftBack.setPower(0);
+                robot.rightFront.setPower(0);
+                robot.rightBack.setPower(0);
 
-            if (up && !lastUp) {        // pressed this loop
-                rpm += 500;
+                // 2. RPM adjustment with edge detection
+                boolean up = gamepad2.dpad_up;
+                boolean down = gamepad2.dpad_down;
+
+                if (up && !lastUp) {        // pressed this loop
+                    rpm += 500;
+                }
+                if (down && !lastDown) {
+                    rpm -= 500;
+                }
+
+                // store previous state
+                lastUp = up;
+                lastDown = down;
+
+                // clamp
+                if (rpm < 0) rpm = 0;
+                if (rpm > 6000) rpm = 6000;
+
+                // 3. Apply RPM + maintain speed
+                launcher.setRPM(rpm);
+                launcher.update();   // << REQUIRED
+
+                telemetry.addData("RPM Target", rpm);
+                telemetry.addData("Ready", launcher.readyToFire());
+
+                //4. Intake systems
+                if (gamepad2.left_trigger > 0.1) {
+                    loader.LoadBot(1);
+                }
+
+                //5. Load Systems
+                if (gamepad2.right_trigger > 0.1) {
+                    loader.LoadTurret(1);
+                }
+                if (gamepad2.right_trigger < 0.1 && gamepad2.left_trigger < 0.1 && !gamepad2.x) {
+                    loader.stopLoader();
+                    loader.stopIntake();
+                }
+
+                //6. Flush system.
+                if (gamepad2.x) {
+                    loader.LoadBot(-1);
+                    loader.LoadTurret(-1);
+                }
+                // 7. Turret control
+                if (Math.abs(gamepad2.left_stick_x) > 0.1) {
+                    turret.rotateTurret(gamepad2.left_stick_x);
+                } else {
+                    turret.stop();
+                }
+                telemetry.update();
+
             }
-            if (down && !lastDown) {
-                rpm -= 500;
-            }
-
-            // store previous state
-            lastUp = up;
-            lastDown = down;
-
-            // clamp
-            if (rpm < 0) rpm = 0;
-            if (rpm > 6000) rpm = 6000;
-
-            // 3. Apply RPM + maintain speed
-            launcher.setRPM(rpm);
-            launcher.update();   // << REQUIRED
-
-            telemetry.addData("RPM Target", rpm);
-            telemetry.addData("Ready", launcher.readyToFire());
-
-            //4. Intake systems
-            if (gamepad2.left_trigger > 0.1)
-            {
-                loader.LoadBot(1);
-            }
-
-            //5. Load Systems
-            if (gamepad2.right_trigger > 0.1)
-            {
-                loader.LoadTurret(1);
-            }
-            if (gamepad2.right_trigger < 0.1 && gamepad2.left_trigger < 0.1 && !gamepad2.x)
-            {
-              loader.stopLoader();
-              loader.stopIntake();
-            }
-
-            //6. Flush system.
-            if (gamepad2.x)
-            {
-                loader.LoadBot(-1);
-                loader.LoadTurret(-1);
-            }
-            // 7. Turret control
-            if (Math.abs(gamepad2.left_stick_x) > 0.1)
-            {
-               turret.rotateTurret(gamepad2.left_stick_x);
-            }
-            else
-            {
-                turret.stop();
-            }
-            telemetry.update();
-
         }
     }
 }

@@ -45,13 +45,17 @@ public class DecodeAutoBase extends LinearOpMode {
         // -------------------------------
 
         // Example: Spin up & shoot once
-        shootAtRPM(3000);
+        robot.launcher.setPower(0.8);
+      //launcher.update();
+      sleep(300);
+       robot.loader.setPower(-1);
+       robot.loader2.setPower(-1);
+       sleep(5000);
+       driveForward(1, 1000);
 
-        // Example: Drive forward
-        driveForward(0.5, 1000);
 
         // Example: Strafe
-        strafeRight(0.5, 600);
+        //strafeRight(0.5, 600);
 
         // Example: Turn turret to neutral
         turret.rotateTurret(0.3);
@@ -120,9 +124,9 @@ public class DecodeAutoBase extends LinearOpMode {
         }
 
         // Fire loader if needed
-        // loader.LoadTurret(1);
-        // sleep(300);
-        // loader.stopLoader();
+         loader.LoadTurret(1);
+        sleep(300);
+        loader.stopLoader();
 
         launcher.stop();
     }

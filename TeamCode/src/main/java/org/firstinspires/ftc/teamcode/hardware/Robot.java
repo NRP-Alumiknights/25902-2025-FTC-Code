@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 public class Robot {
-    public DcMotor rightFront, leftFront, rightBack, leftBack, launcher;
+    public DcMotor rightFront, leftFront, rightBack, leftBack, launcher, launcher2, intake, Rack;
     public CRServo intakeL, intakeR, loader, loader2, loader3, turret;
     public IMU imu;
 
@@ -30,6 +30,12 @@ public class Robot {
         leftBack   = initMotor("LeftBack", false);
 
         launcher = initMotor("Launcher", true);
+        intake = initMotor("Intake", false);
+
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // CRServos
         intakeL = hw.crservo.get("IntakeL");

@@ -17,6 +17,7 @@ public class Drive {
         // drive = forward/back (-1..1)
         // strafe = left/right (-1..1)
         // rotate = rotation (-1..1)
+        strafe = -strafe;
         double lf = drive + strafe + rotate;
         double rf = drive - strafe - rotate;
         double lb = drive - strafe + rotate;

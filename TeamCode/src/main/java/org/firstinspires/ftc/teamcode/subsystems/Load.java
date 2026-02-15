@@ -31,6 +31,7 @@ public class Load {
         // robot.launcher.setPower(power);
 
         // Or a CRServo
+        robot.intake.setPower(power);
         robot.intakeL.setPower(-power/2.0);
         robot.intakeR.setPower(power);
     }
@@ -45,6 +46,7 @@ public class Load {
         // robot.launcher.setPower(0);
         robot.intakeL.setPower(0);
         robot.intakeR.setPower(0);
+        robot.intake.setPower(0);
     }
     public void stopLoader(){
         robot.loader.setPower(0);

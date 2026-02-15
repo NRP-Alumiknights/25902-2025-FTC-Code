@@ -90,7 +90,7 @@ public class Launcher {
         double revs = delta / ticksPerRev;
         double rps = revs / dt;
 
-        return rps * -60.0;
+        return rps * 60.0;
     }
 
     // =============================
