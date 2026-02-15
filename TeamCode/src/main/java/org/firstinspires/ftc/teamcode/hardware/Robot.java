@@ -24,10 +24,10 @@ public class Robot {
         this.hw = hardwareMap;
 
         // Motors (MAKE SURE names match your config!)
-        rightFront = initMotor("RightFront", true);
-        leftFront  = initMotor("LeftFront", false);
-        rightBack  = initMotor("RightBack", true);
-        leftBack   = initMotor("LeftBack", false);
+        rightFront = initMotor("RightFront", false);
+        leftFront  = initMotor("LeftFront", true);
+        rightBack  = initMotor("RightBack", false);
+        leftBack   = initMotor("LeftBack", true);
 
         launcher = initMotor("Launcher", true);
         intake = initMotor("Intake", false);
@@ -60,7 +60,7 @@ public class Robot {
 
     private DcMotor initMotor(String name, boolean forward) {
         DcMotor m = hw.get(DcMotor.class, name);
-        if (!forward) m.setDirection(DcMotorSimple.Direction.REVERSE);
+
         m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         return m;
     }

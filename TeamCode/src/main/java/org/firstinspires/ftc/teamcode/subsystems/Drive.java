@@ -12,6 +12,29 @@ public class Drive {
         this.robot = robot;
     }
 
+    public void driveLoop(double g1rsy, double g1rsx, double g1lsx ) {
+        if (g1rsy != 0 || g1rsx != 0 || g1lsx != 0) {
+            double r = Math.hypot(g1rsx, g1rsy);
+            double robotAngle = Math.atan2(g1rsy, g1rsx) - Math.PI / 4;
+            double turn = g1lsx;
+            double rightX = turn * turn * turn;
+            final double v1 = (-r * Math.cos(robotAngle) + rightX);
+            final double v2 = (-r * Math.sin(robotAngle) - rightX);
+            final double v3 = (-r * Math.sin(robotAngle) + rightX);
+            final double v4 = (-r * Math.cos(robotAngle) - rightX);
+            robot.leftBack.setPower(v1 * 1);
+            robot.rightBack.setPower(v2 * 1);
+            robot.leftFront.setPower(v3 * 1);
+            robot.rightFront.setPower(v4 * 1);
+
+
+        } else {
+            robot.leftFront.setPower(0);
+            robot.leftBack.setPower(0);
+            robot.rightFront.setPower(0);
+            robot.rightBack.setPower(0);
+        }
+    }
     /** Send mecanum-style powers; inputs are raw joystick values */
     public void setMecanum(double drive, double strafe, double rotate, double scale) {
         // drive = forward/back (-1..1)
